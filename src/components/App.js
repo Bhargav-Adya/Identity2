@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import DVideo from '../abis/DVideo.json'
+import Identity from '../abis/Identity.json'
 import Navbar from './Navbar'
 import Main from './Main'
 import Web3 from 'web3';
@@ -32,11 +33,43 @@ class App extends Component {
   async loadBlockchainData() {
     const web3 = window.web3
     //Load accounts
+    const accounts = await web3.eth.getAccounts();
+    console.log(accounts);
+    this.setState({account: accounts[0]})
     //Add first account the the state
 
     //Get network ID
+    const networkId = await web3.eth.net.getId()
+    console.log(networkId)
     //Get network data
+    const networkData = Identity.networks[networkId]
+    console.log('networkdata is '+ networkData)
     //Check if net data exists, then
+    if(networkData){
+      const identity = new web3.eth.Contract(Identity.abi,networkData.address)
+      this.setState({identity})
+      
+      
+      const idsCount = await identity.methods.idCount().call()
+      this.setState({idsCount})
+
+      // for(var i =idsCount; i>=1;i--){
+      //   const video = await identity.methods.blocks(i).call()
+      //   this.setState({
+      //     videos:[...this.state.blocks, video ]
+      //   })
+      // }
+
+      // const latest = await identity.methods.blocks(idsCount).call()
+      // this.setState({
+      //   currentHash: latest.Adhaar_Hash,
+      //   currentTitle: latest.Adhaar_No
+      // })
+      // this.setState({loading:false})
+
+    }else{
+      window.alert('Identity contract not deployed to declared network.')
+    }
       //Assign dvideo contract to a variable
       //Add dvideo to the state
 
@@ -70,7 +103,13 @@ class App extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      loading: false
+      buffer:null,
+      account:'',
+      identity:null,
+      videos:[],
+      loading: false,
+      currentHash:null,
+      currentTitle:null
       //set states
     }
 
@@ -82,6 +121,7 @@ class App extends Component {
       <div>
         <Navbar 
           //Account
+          account = {this.state.account}
         />
         { this.state.loading
           ? <div id="loader" className="text-center mt-5"><p>Loading...</p></div>

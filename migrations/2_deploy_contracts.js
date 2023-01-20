@@ -1,5 +1,5 @@
-const DVideo = artifacts.require("DVideo");
+const Identity = artifacts.require("Identity");
 
 module.exports = function(deployer) {
-  deployer.deploy(DVideo);
+  deployer.deploy(Identity);
 };

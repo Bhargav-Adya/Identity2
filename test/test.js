@@ -1,19 +1,19 @@
-const DVideo = artifacts.require('./DVideo.sol')
+const Identity = artifacts.require('./Identity.sol')
 
 require('chai')
   .use(require('chai-as-promised'))
   .should()
 
-contract('DVideo', ([deployer, author]) => {
-  let dvideo
+contract('Identity', ([deployer, author]) => {
+  let identity
 
   before(async () => {
-    dvideo = await DVideo.deployed()
+    identity = await Identity.deployed()
   })
 
   describe('deployment', async () => {
     it('deploys successfully', async () => {
-      const address = await dvideo.address
+      const address = await identity.address
       assert.notEqual(address, 0x0)
       assert.notEqual(address, '')
       assert.notEqual(address, null)
