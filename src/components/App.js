@@ -52,20 +52,20 @@ class App extends Component {
       
       const idsCount = await identity.methods.idCount().call()
       this.setState({idsCount})
+      
+      for(var i =idsCount; i>=1;i--){
+        const video = await identity.methods.blocks(i).call()
+        this.setState({
+          videos:[...this.state.blocks, video ]
+        })
+      }
 
-      // for(var i =idsCount; i>=1;i--){
-      //   const video = await identity.methods.blocks(i).call()
-      //   this.setState({
-      //     videos:[...this.state.blocks, video ]
-      //   })
-      // }
-
-      // const latest = await identity.methods.blocks(idsCount).call()
-      // this.setState({
-      //   currentHash: latest.Adhaar_Hash,
-      //   currentTitle: latest.Adhaar_No
-      // })
-      // this.setState({loading:false})
+      const latest = await identity.methods.blocks(idsCount).call()
+      this.setState({
+        currentHash: latest.Adhaar_Hash,
+        currentTitle: latest.Adhaar_No
+      })
+      this.setState({loading:false})
 
     }else{
       window.alert('Identity contract not deployed to declared network.')
@@ -87,12 +87,27 @@ class App extends Component {
 
   //Get video
   captureFile = event => {
+    event.preventDefault()
+    const file = event.target.files[0]
+    const reader = new window.FileReader()
+    reader.readAsArrayBuffer(file)
 
+    reader.onloadend = () => {
+      this.setState({ buffer: Buffer(reader.result) })
+      console.log('buffer', this.state.buffer)
+      
+    }
   }
-
   //Upload video
   uploadVideo = title => {
-
+    console.log("Submitting to ipfs")
+    ipfs.add(this.state.buffer,(error,result)=>{
+      if(error)
+      {
+        console.error(error)
+        return
+      }
+    })
   }
 
   //Change Video
@@ -126,9 +141,11 @@ class App extends Component {
         { this.state.loading
           ? <div id="loader" className="text-center mt-5"><p>Loading...</p></div>
           : <Main
-              //states&functions
+              uploadVideo={this.uploadVideo}
+              captureFile={this.captureFile}
             />
         }
+        
       </div>
     );
   }
